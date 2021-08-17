@@ -2,6 +2,7 @@ const router = require("express").Router();
 const User = require("../model/User.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 router.post("/register", async (req, res) => {
   //중복체크
@@ -29,16 +30,23 @@ router.post("/register", async (req, res) => {
 
 //Login
 router.post("/login", async (req, res) => {
-  const checkUser = await User.findOne({ email: req.body.email });
+  const checkUser = await User.findOne({
+    email: req.body.email,
+    password: req.body.password,
+  });
   if (!checkUser) {
-    return res.status(400).send("Email is not found");
+    return res.status(400).send("User is not found");
   }
   const validPass = await bcrypt.compare(req.body.password, checkUser.password); //입력한 비밀번호와 DB의 비밀번호를 비교, true 또는 false를 반환한다.
   if (!validPass) {
     return res.status(400).send("Invalid password");
   }
   //create and assign a token
-  const token = jwt.sign({ _id: user._id });
+  const token = jwt.sign(
+    { _id: user._id, email: req.body.email },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "1d" }
+  );
 
   res.send("success login!!");
 });
