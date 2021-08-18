@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  id: {
+  email: {
     type: String,
     required: true,
     max: 20,
@@ -13,27 +13,22 @@ const userSchema = new mongoose.Schema({
   },
   content: {
     type: String,
-    required: true,
     max: 100,
   },
   acs_token: {
     type: String,
-    required: true,
     max: 100,
   },
   rfrsh_token: {
     type: String,
-    required: true,
     max: 100,
   },
   scope: {
     type: String,
-    required: true,
     max: 100,
   },
   acs_exp: {
     type: Date,
-    max: 1024,
   },
   rfrsh_exp: {
     type: Date,

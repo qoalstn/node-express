@@ -15,16 +15,21 @@ router.post("/register", async (req, res) => {
   //hash passwords
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
-  const token = await bcrypt.hash(Math.random(), salt);
+  const random = Math.random();
+  const token = await bcrypt.hash(String(random), salt);
+  const today = new Date();
+  const tomorrow = new Date(today.setDate(today.getDate() + 1));
 
   const user = new User({
-    name: req.body.name,
     email: req.body.email,
-    password: hashedPassword,
+    pass: hashedPassword,
+    acs_token: token,
+    acs_exp: tomorrow,
   });
+
   try {
     const savedUser = await user.save();
-    res.send({ user: user._id, access_token: token });
+    res.send({ user: user._id, access_token: token, acs_exp: tomorrow });
   } catch (err) {
     res.status(400).send(err);
   }
