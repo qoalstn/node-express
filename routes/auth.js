@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+//join
 router.post("/register", async (req, res) => {
   //중복체크
   const emailExist = await User.findOne({ email: req.body.email });
@@ -14,6 +15,7 @@ router.post("/register", async (req, res) => {
   //hash passwords
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
+  const token = await bcrypt.hash(Math.random(), salt);
 
   const user = new User({
     name: req.body.name,
@@ -22,7 +24,7 @@ router.post("/register", async (req, res) => {
   });
   try {
     const savedUser = await user.save();
-    res.send({ user: user._id });
+    res.send({ user: user._id, access_token: token });
   } catch (err) {
     res.status(400).send(err);
   }
@@ -42,6 +44,7 @@ router.post("/login", async (req, res) => {
     return res.status(400).send("Invalid password");
   }
   //create and assign a token
+  const access = await signAccessToken();
   const token = jwt.sign(
     { _id: user._id, email: req.body.email },
     process.env.ACCESS_TOKEN_SECRET,

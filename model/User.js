@@ -1,27 +1,42 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  name: {
+  id: {
     type: String,
     required: true,
-    min: 6,
-    max: 255,
+    max: 20,
   },
-  email: {
+  pass: {
     type: String,
     required: true,
-    min: 6,
-    max: 255,
+    max: 100,
   },
-  password: {
+  content: {
     type: String,
     required: true,
-    min: 6,
+    max: 100,
+  },
+  acs_token: {
+    type: String,
+    required: true,
+    max: 100,
+  },
+  rfrsh_token: {
+    type: String,
+    required: true,
+    max: 100,
+  },
+  scope: {
+    type: String,
+    required: true,
+    max: 100,
+  },
+  acs_exp: {
+    type: Date,
     max: 1024,
   },
-  date: {
+  rfrsh_exp: {
     type: Date,
-    default: Date.now,
   },
 });
 
