@@ -2,6 +2,8 @@ const router = require("express").Router();
 const User = require("../model/User.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const logger = require("../util/log");
+
 require("dotenv").config();
 
 //join
@@ -28,7 +30,7 @@ router.post("/register", async (req, res) => {
   });
 
   try {
-    const savedUser = await user.save();
+    await user.save();
     res.send({ user: user._id, access_token: token, acs_exp: tomorrow });
   } catch (err) {
     res.status(400).send(err);
@@ -37,6 +39,7 @@ router.post("/register", async (req, res) => {
 
 //Login
 router.post("/login", async (req, res) => {
+  logger.info(req.body);
   const checkUser = await User.findOne({
     email: req.body.email,
     password: req.body.password,

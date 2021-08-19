@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+const morgan = require("morgan");
 require("dotenv").config();
+
 //Middleware
+app.use(morgan("dev"));
 app.use(express.json());
 
 //Connect to DB
