@@ -6,10 +6,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     max: 20,
   },
-  pass: {
+  password: {
     type: String,
     required: true,
-    max: 100,
+    max: 200,
   },
   content: {
     type: String,

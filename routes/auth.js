@@ -24,7 +24,8 @@ router.post("/register", async (req, res) => {
 
   const user = new User({
     email: req.body.email,
-    pass: hashedPassword,
+    password: hashedPassword,
+    content: req.body.content,
     acs_token: token,
     acs_exp: tomorrow,
   });
@@ -45,21 +46,48 @@ router.post("/login", async (req, res) => {
     password: req.body.password,
   });
   if (!checkUser) {
-    return res.status(400).send("User is not found");
+    return res.status(500).send("User is not found");
   }
-  const validPass = await bcrypt.compare(req.body.password, checkUser.password); //입력한 비밀번호와 DB의 비밀번호를 비교, true 또는 false를 반환한다.
-  if (!validPass) {
-    return res.status(400).send("Invalid password");
-  }
-  //create and assign a token
-  const access = await signAccessToken();
-  const token = jwt.sign(
-    { _id: user._id, email: req.body.email },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "1d" }
-  );
 
-  res.send("success login!!");
+  bcrypt.hash(req.body.password, 10, function (err, hash) {
+    if (err) {
+      throw err;
+    }
+
+    bcrypt.compare(checkUser.password, hash, function (err, result) {
+      if (err) {
+        return res.status(403).send("Invalid password");
+      }
+      console.log("result", result);
+    });
+  });
+
+  const accessToken = jwt.sign({ id: checkUser._id }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "1d",
+  });
+
+  res.json({ status: "00", token: accessToken });
 });
+
+router.get("/contents", authorizationToken, async (req, res) => {
+  const checkUser = await User.findOne({
+    _id: req.user.id,
+  });
+  console.log(checkUser);
+  res.json({ status: "00", msg: checkUser });
+});
+
+function authorizationToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const inputToken = authHeader && authHeader.split(" ")[1];
+
+  if (inputToken == null) return res.sendStatus(401);
+
+  jwt.verify(inputToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
 
 module.exports = router;
