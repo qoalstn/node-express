@@ -49,24 +49,15 @@ router.post("/login", async (req, res) => {
     return res.status(500).send("User is not found");
   }
 
-  bcrypt.hash(req.body.password, 10, function (err, hash) {
-    if (err) {
-      throw err;
-    }
+  const salt = await bcrypt.genSalt(10);
+  const token = await bcrypt.hash(String(Math.random()), salt);
 
-    bcrypt.compare(checkUser.password, hash, function (err, result) {
-      if (err) {
-        return res.status(403).send("Invalid password");
-      }
-      console.log("result", result);
-    });
-  });
+  const today = new Date();
+  const tomorrow = new Date(today.setDate(today.getDate() + 1));
 
-  const accessToken = jwt.sign({ id: checkUser._id }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "1d",
-  });
+  User.updateOne({ email: req.body.email }, { $set: { acs_token: token, acs_exp: tomorrow } });
 
-  res.json({ status: "00", token: accessToken });
+  res.json({ status: "00", token: token });
 });
 
 router.get("/contents", authorizationToken, async (req, res) => {
@@ -77,17 +68,37 @@ router.get("/contents", authorizationToken, async (req, res) => {
   res.json({ status: "00", msg: checkUser });
 });
 
-function authorizationToken(req, res, next) {
+//회원정보 업데이트
+router.post("/info", authorizationToken, async (req, res) => {
+  const inputMail = req.body.email;
+  const inputContent = req.body.content;
+  console.log(inputContent, inputMail);
+
+  try {
+    await User.updateOne({ email: inputMail }, { $set: { content: inputContent } });
+    res.status(200).json({ msg: "success update" });
+  } catch {
+    throw new Error("fail update");
+  }
+});
+
+async function authorizationToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const inputToken = authHeader && authHeader.split(" ")[1];
 
-  if (inputToken == null) return res.sendStatus(401);
-
-  jwt.verify(inputToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
+  const checkUser = await User.findOne({
+    email: req.body.email,
+    acs_token: inputToken,
   });
+
+  if (!inputToken) return res.sendStatus(401);
+
+  if (!checkUser) return res.status(500).send("no data");
+
+  if (checkUser.acs_token != inputToken) {
+    return res.status(403).send("Invalid token");
+  }
+  next();
 }
 
 module.exports = router;
