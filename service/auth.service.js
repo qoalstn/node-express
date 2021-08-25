@@ -48,7 +48,6 @@ exports.login = async (req, res) => {
     if (err) {
       throw err;
     }
-
     bcrypt.compare(checkUser.password, hash, async (err, result) => {
       if (err) {
         return res.status(500).send("User is not found");
@@ -70,18 +69,21 @@ exports.login = async (req, res) => {
   });
 };
 
-exports.checkUser = (req, res) => {
-  const checkUser = await User.findOne({
+exports.getContens = async (req, res) => {
+  const checkUser = await User.find({
     _id: req.user.id,
   });
   console.log(checkUser);
   res.json({ status: "00", msg: checkUser });
 };
 
-exports.info = (req, res) => {
+exports.writeContent = (req, res) => {
+  const inputContent = req.body.content;
+};
+
+exports.updateUserInfo = async (req, res) => {
   const inputMail = req.body.email;
   const inputContent = req.body.content;
-  console.log(inputContent, inputMail);
 
   try {
     await User.updateOne({ email: inputMail }, { $set: { content: inputContent } });
@@ -91,21 +93,27 @@ exports.info = (req, res) => {
   }
 };
 
-async function authorizationToken(req, res, next) {
+exports.authorizationToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const inputToken = authHeader && authHeader.split(" ")[1];
 
+  if (!inputToken) return res.sendStatus(401);
+
   const checkUser = await User.findOne({
     email: req.body.email,
-    acs_token: inputToken,
   });
-
-  if (!inputToken) return res.sendStatus(401);
 
   if (!checkUser) return res.status(500).send("no data");
 
-  if (checkUser.acs_token != inputToken) {
-    return res.status(403).send("Invalid token");
-  }
-  next();
-}
+  bcrypt.hash(inputToken, 10, (err, hash) => {
+    if (err) {
+      return res.status(500).send("Unavailable token");
+    }
+    bcrypt.compare(checkUser.acs_token, hash, async (err, result) => {
+      if (err) {
+        return res.status(500).send("Unavailable token");
+      }
+      next();
+    });
+  });
+};
