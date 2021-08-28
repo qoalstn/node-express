@@ -11,8 +11,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     max: 200,
   },
+  adrr: {
+    type: Array,
+    max: 100,
+  },
   content: {
-    type: String,
+    type: Array,
     max: 100,
   },
   acs_token: {

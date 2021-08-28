@@ -9,6 +9,7 @@ const {
   getContens,
   updateUserInfo,
   authorizationToken,
+  writeContent,
 } = require("../service/auth.service");
 
 require("dotenv").config();
@@ -17,7 +18,9 @@ router.post("/register", join);
 
 router.post("/login", login);
 
-router.get("/contents", authorizationToken, getContens);
+router.post("/content", authorizationToken, writeContent);
+
+router.get("/content", authorizationToken, getContens);
 
 router.post("/info", authorizationToken, updateUserInfo);
 

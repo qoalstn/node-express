@@ -77,16 +77,21 @@ exports.getContens = async (req, res) => {
   res.json({ status: "00", msg: checkUser });
 };
 
+//todo :
 exports.writeContent = (req, res) => {
   const inputContent = req.body.content;
+
+  User.updateOne({ email: req.body.email }, { $set: { content: [inputContent] } });
+
+  res.status(200).send("update success");
 };
 
 exports.updateUserInfo = async (req, res) => {
   const inputMail = req.body.email;
-  const inputContent = req.body.content;
+  const inputAdrr = req.body.adrr;
 
   try {
-    await User.updateOne({ email: inputMail }, { $set: { content: inputContent } });
+    await User.updateOne({ email: inputMail }, { $set: { adrr: inputAdrr } });
     res.status(200).json({ msg: "success update" });
   } catch {
     throw new Error("fail update");
