@@ -13,8 +13,8 @@ exports.join = async (req, res) => {
   //hash passwords
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
-  const random = Math.random();
-  const token = await bcrypt.hash(String(random), salt);
+  const client_token = String(Math.random());
+  const token = await bcrypt.hash(client_token, salt);
   const today = new Date();
   const tomorrow = new Date(today.setDate(today.getDate() + 1));
 
@@ -28,7 +28,7 @@ exports.join = async (req, res) => {
 
   try {
     await user.save();
-    res.send({ user: user._id, access_token: token, acs_exp: tomorrow });
+    res.send({ user: user._id, access_token: client_token, acs_exp: tomorrow });
   } catch (err) {
     res.status(400).send(err);
   }
@@ -45,13 +45,15 @@ exports.login = async (req, res) => {
   console.log(checkUser);
 
   bcrypt.hash(req.body.password, 10, (err, hash) => {
+    console.log("hash", hash);
     if (err) {
       throw err;
     }
-    bcrypt.compare(checkUser.password, hash, async (err, result) => {
+    bcrypt.compare(req.body.password, hash, async (err, result) => {
       if (err) {
         return res.status(500).send("User is not found");
-      } else {
+      }
+      if (result) {
         const salt = await bcrypt.genSalt(10);
         const token = await bcrypt.hash(String(Math.random()), salt);
 
@@ -81,7 +83,7 @@ exports.getContens = async (req, res) => {
 exports.writeContent = (req, res) => {
   const inputContent = req.body.content;
 
-  User.updateOne({ email: req.body.email }, { $set: { content: [inputContent] } });
+  User.updateOne({ email: req.body.email }, { $set: { content: inputContent } });
 
   res.status(200).send("update success");
 };
@@ -114,11 +116,18 @@ exports.authorizationToken = async (req, res, next) => {
     if (err) {
       return res.status(500).send("Unavailable token");
     }
-    bcrypt.compare(checkUser.acs_token, hash, async (err, result) => {
+    bcrypt.compare(inputToken, hash, async (err, result) => {
+      console.log(hash);
+      console.log(checkUser.acs_token);
+      console.log(result);
       if (err) {
         return res.status(500).send("Unavailable token");
       }
-      next();
+      if (result) {
+        next();
+      } else {
+        throw new Error("authorization error");
+      }
     });
   });
 };
