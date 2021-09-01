@@ -10,13 +10,14 @@ const {
   updateUserInfo,
   authorizationToken,
   writeContent,
+  sendToken,
 } = require("../service/auth.service");
 
 require("dotenv").config();
 
-router.post("/register", join);
+router.post("/register", join, sendToken);
 
-router.post("/login", login);
+router.post("/login", login, sendToken);
 
 router.post("/content", authorizationToken, writeContent);
 
