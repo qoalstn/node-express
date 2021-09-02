@@ -2,39 +2,61 @@ const User = require("../model/User.js");
 const bcrypt = require("bcryptjs");
 const logger = require("../util/log");
 const jwt = require("jsonwebtoken");
+const { MongoClient } = require("mongodb");
 
 require("dotenv").config();
 
+async function run() {
+  try {
+    const client = new MongoClient(process.env.MONGO_URL);
+    await client.connect();
+
+    const database = client.db("myFirstDatabase");
+    const users = database.collection("users");
+
+    return users;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 async function createToken(inputMail) {
-  const accessToken = jwt.sign({ id: inputMail }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "12h",
-    algorithm: "HS256",
-  });
-  const refreshToken = jwt.sign({ id: inputMail }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "14d",
-    algorithm: "HS256",
-  });
+  const accessToken = jwt.sign(
+    { email: inputMail },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "12h",
+      algorithm: "HS256",
+    }
+  );
+  const refreshToken = jwt.sign(
+    { email: inputMail },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "14d",
+      algorithm: "HS256",
+    }
+  );
   return { accessToken, refreshToken };
 }
 
 exports.sendToken = async (req, res) => {
-  console.log(req.body.email);
   const { accessToken } = await createToken(req.body.email);
-  console.log(accessToken);
   if (accessToken) {
     const today = new Date();
     const tomorrow = new Date(today.setDate(today.getDate() + 1));
 
+    const users = await run();
     //todo : update, fail > transaction // test : api/user/register
     try {
-      await User.updateOne(
+      await users.updateOne(
         { email: req.body.email },
         { $set: { acs_token: accessToken, acs_exp: tomorrow } },
         (upsert = true),
         (multi = true)
       );
-    } catch {
-      throw new Error();
+    } catch (err) {
+      throw new Error(err);
     }
     res.status(200).json({ accessToken: accessToken });
   } else {
@@ -64,19 +86,23 @@ exports.join = async (req, res, next) => {
       return res.status(400).send("email exist");
     } else {
       const salt = await bcrypt.genSalt(10);
-      const hashedPass = await bcrypt.hash(inputPass, salt);
-
-      //DB
-      try {
-        const user = new User({
-          email: req.body.email,
-          password: hashedPass,
-        });
-        await user.save();
-        next();
-      } catch {
-        return res.status(500).send("join fail");
-      }
+      await bcrypt.hash(inputPass, salt, async (err, hash) => {
+        if (err) {
+          throw new Error(err);
+        } else {
+          //DB
+          try {
+            const user = new User({
+              email: req.body.email,
+              password: hash,
+            });
+            await user.save();
+            next();
+          } catch {
+            return res.status(500).send("join fail");
+          }
+        }
+      });
     }
   }
 };
@@ -90,29 +116,38 @@ exports.login = async (req, res, next) => {
     const data = await User.findOne({
       email: inputId,
     });
-    const dbPass = data.length > 0 ? data[0].pass : "";
-    const validPass = await bcrypt.compare(inputPass, dbPass);
-    if (!validPass) {
-      return res.status(500).send("login info error");
-    } else {
-      next();
-    }
+    const dbPass = data ? data.password : "";
+    await bcrypt.compare(inputPass, dbPass, (err, result) => {
+      if (err) {
+        throw new Error(err);
+      }
+      if (!result) {
+        return res.status(500).send("login info error");
+      } else {
+        next();
+      }
+    });
   }
 };
 
 exports.getContens = async (req, res) => {
   const checkUser = await User.find({
-    _id: req.user.id,
+    email: req.body.email,
   });
   console.log(checkUser);
   res.status(200).json({ msg: checkUser });
 };
 
-//todo :
 exports.writeContent = (req, res) => {
   const inputContent = req.body.content;
 
-  User.updateOne({ email: req.body.email }, { $set: { content: inputContent } });
+  //todo : exception handling - if exceed content length
+  if (!inputContent) return res.status(400).send("no content");
+
+  User.updateOne(
+    { email: req.body.email },
+    { $set: { content: [inputContent] } }
+  );
 
   res.status(200).send("update success");
 };

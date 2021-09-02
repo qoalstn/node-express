@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
     max: 200,
   },
   adrr: {
-    type: Array,
+    type: String,
     max: 100,
   },
   content: {
