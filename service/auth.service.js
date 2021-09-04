@@ -8,7 +8,7 @@ require("dotenv").config();
 
 async function run() {
   try {
-    const client = new MongoClient(process.env.MONGO_URL);
+    const client = new MongoClient(process.env.MONGO_URL, { useUnifiedTopology: true });
     await client.connect();
 
     const database = client.db("myFirstDatabase");
@@ -21,22 +21,14 @@ async function run() {
 }
 
 async function createToken(inputMail) {
-  const accessToken = jwt.sign(
-    { email: inputMail },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "12h",
-      algorithm: "HS256",
-    }
-  );
-  const refreshToken = jwt.sign(
-    { email: inputMail },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "14d",
-      algorithm: "HS256",
-    }
-  );
+  const accessToken = jwt.sign({ email: inputMail }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "12h",
+    algorithm: "HS256",
+  });
+  const refreshToken = jwt.sign({ email: inputMail }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "14d",
+    algorithm: "HS256",
+  });
   return { accessToken, refreshToken };
 }
 
@@ -138,16 +130,25 @@ exports.getContens = async (req, res) => {
   res.status(200).json({ msg: checkUser });
 };
 
-exports.writeContent = (req, res) => {
+exports.writeContent = async (req, res) => {
   const inputContent = req.body.content;
+  const users = await run();
 
   //todo : exception handling - if exceed content length
   if (!inputContent) return res.status(400).send("no content");
 
-  User.updateOne(
-    { email: req.body.email },
-    { $set: { content: [inputContent] } }
-  );
+  const filter = { email: req.body.email };
+  const options = { upsert: true };
+  const updateDoc = {
+    $push: {
+      content: inputContent,
+    },
+  };
+  try {
+    await users.updateOne(filter, updateDoc, options);
+  } catch (error) {
+    throw new Error(error);
+  }
 
   res.status(200).send("update success");
 };
@@ -172,6 +173,7 @@ exports.authorizationToken = async (req, res, next) => {
 
   const checkUser = await User.findOne({
     email: req.body.email,
+    acs_token: inputToken,
   });
 
   if (!checkUser) return res.status(500).send("no data");
