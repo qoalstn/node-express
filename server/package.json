@@ -19,6 +19,7 @@
     "mongoose": "^5.13.7",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.12",
+    "socket.io": "^4.2.0",
     "websocket": "^1.0.34",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.5"

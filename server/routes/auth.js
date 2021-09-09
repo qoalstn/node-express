@@ -1,4 +1,4 @@
-const router = require("express").Router();
+const router = require('express').Router()
 
 const {
   join,
@@ -8,19 +8,19 @@ const {
   authorizationToken,
   writeContent,
   sendToken,
-} = require("../service/auth.service");
+} = require('../service/auth.service')
 
-require("dotenv").config();
+require('dotenv').config()
 
-router.post("/register", join, sendToken);
+router.post('/register', join, sendToken)
 
-router.post("/login", login, sendToken);
+router.post('/login', login, sendToken)
 
-router.post("/content", authorizationToken, writeContent);
+router.post('/content', authorizationToken, writeContent)
 
-router.get("/content", authorizationToken, getContens);
+router.get('/content', authorizationToken, getContens)
 
-router.post("/info", authorizationToken, updateUserInfo);
+router.post('/info', authorizationToken, updateUserInfo)
 
 // router.post("/jwt", (req, res) => {
 //   const jwtTest = jwt.sign({ name: "aria" }, "hello");
@@ -28,4 +28,4 @@ router.post("/info", authorizationToken, updateUserInfo);
 //   res.status(200).send(jwtTest);
 // });
 
-module.exports = router;
+module.exports = router
