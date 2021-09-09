@@ -1,14 +1,14 @@
-const express = require("express");
-const app = express();
-const mongoose = require("mongoose");
-const morgan = require("morgan");
-const cors = require("cors");
-require("dotenv").config();
+const express = require('express')
+const app = express()
+const mongoose = require('mongoose')
+const morgan = require('morgan')
+const cors = require('cors')
+require('dotenv').config()
 
 //Middleware
-app.use(morgan("dev"));
-app.use(express.json());
-app.use(cors());
+app.use(morgan('dev'))
+app.use(express.json())
+app.use(cors())
 
 //Connect to DB
 mongoose.connect(
@@ -17,90 +17,23 @@ mongoose.connect(
     useNewUrlParser: true,
     useUnifiedTopology: true,
   },
-  () => console.log("connected to mongoDB!")
-);
+  () => console.log('connected to mongoDB!')
+)
 
-const authRoute = require("./routes/auth");
+const authRoute = require('./routes/auth')
 
 //Route Middlewares
-app.use("/api/user", authRoute);
+app.use('/api/user', authRoute)
 
-app.get("/", (req, res) => {
-  res.json({ title: "hello!" });
-});
+app.get('/', (req, res) => {
+  res.json({ title: 'hello!' })
+})
 
-const webSocketsServerPort = 8000;
-const webSocketServer = require("websocket").server;
-const http = require("http");
-// Spinning the http server and the websocket server.
-const server = http.createServer();
-server.listen(webSocketsServerPort);
-const wsServer = new webSocketServer({
-  httpServer: server,
-});
+const { createServer } = require('http')
+const server = createServer(app)
+const { Server } = require('socket.io')
+const io = new Server(server)
 
-// Generates unique ID for every new connection
-const getUniqueID = () => {
-  const s4 = () =>
-    Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  return s4() + s4() + "-" + s4();
-};
+io.on('connection', onConnection)
 
-// I'm maintaining all active connections in this object
-const clients = {};
-// I'm maintaining all active users in this object
-const users = {};
-// The current editor content is maintained here.
-let editorContent = null;
-// User activity history.
-let userActivity = [];
-
-const sendMessage = (json) => {
-  // We are sending the current data to all connected clients
-  Object.keys(clients).map((client) => {
-    clients[client].sendUTF(json);
-  });
-};
-
-const typesDef = {
-  USER_EVENT: "userevent",
-  CONTENT_CHANGE: "contentchange",
-};
-
-wsServer.on("request", function (request) {
-  var userID = getUniqueID();
-  console.log(new Date() + " Recieved a new connection from origin " + request.origin + ".");
-  // You can rewrite this part of the code to accept only the requests from allowed origin
-  const connection = request.accept(null, request.origin);
-  clients[userID] = connection;
-  console.log("connected: " + userID + " in " + Object.getOwnPropertyNames(clients));
-  connection.on("message", function (message) {
-    if (message.type === "utf8") {
-      const dataFromClient = JSON.parse(message.utf8Data);
-      const json = { type: dataFromClient.type };
-      if (dataFromClient.type === typesDef.USER_EVENT) {
-        users[userID] = dataFromClient;
-        userActivity.push(`${dataFromClient.username} joined to edit the document`);
-        json.data = { users, userActivity };
-      } else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-        editorContent = dataFromClient.content;
-        json.data = { editorContent, userActivity };
-      }
-      sendMessage(JSON.stringify(json));
-    }
-  });
-  // user disconnected
-  connection.on("close", function (connection) {
-    console.log(new Date() + " Peer " + userID + " disconnected.");
-    const json = { type: typesDef.USER_EVENT };
-    userActivity.push(`${users[userID].username} left the document`);
-    json.data = { users, userActivity };
-    delete clients[userID];
-    delete users[userID];
-    sendMessage(JSON.stringify(json));
-  });
-});
-
-app.listen(3333, () => console.log("3333 server start"));
+app.listen(3333, () => console.log('3333 server start'))
