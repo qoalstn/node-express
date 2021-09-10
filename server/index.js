@@ -10,7 +10,6 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(cors())
 
-//Connect to DB
 mongoose.connect(
   process.env.MONGO_URL,
   {
@@ -22,18 +21,23 @@ mongoose.connect(
 
 const authRoute = require('./routes/auth')
 
-//Route Middlewares
 app.use('/api/user', authRoute)
 
 app.get('/', (req, res) => {
   res.json({ title: 'hello!' })
 })
 
-const { createServer } = require('http')
-const server = createServer(app)
-const { Server } = require('socket.io')
-const io = new Server(server)
+const port = 3333
 
-io.on('connection', onConnection)
+var http = require('http').createServer(app)
+const io = require('socket.io')(http)
 
-app.listen(3333, () => console.log('3333 server start'))
+const socketHandler = require('./service/socket.service')
+
+io.on('connection', socketHandler)
+
+// app.listen(3333, () => console.log('3333 server start'))
+
+http.listen(port, () => {
+  console.log(`express is running on ${port}`)
+})

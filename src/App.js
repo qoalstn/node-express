@@ -1,63 +1,46 @@
-import React, { Component } from 'react'
+import React from 'react'
 import io from 'socket.io-client'
-// 3. socket.io
+import './App.css'
 
-// 2 .
-class App extends React.Component {
+const socket = io.connect('http://localhost:3333/', {
+  transports: ['websocket'],
+})
+
+export default class Message extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      username: null,
-      socket: null,
+      userid: 'been',
+      chatText: '',
     }
   }
-
-  componentDidMount() {
-    this.socket = io.connect('http://localhost:3333')
-    fetch('http://localhost:3333')
-      .then((res) => res.json())
-      // .then((data) => console.log(data.title));
-      .then((data) => this.setState({ username: data.title }))
+  componentWillMount() {
+    socket.emit('roomjoin', this.state.userid)
+    socket.on('show', (data) => {
+      alert(`success : ${data}`)
+    })
+  }
+  onclick = (e) => {
+    console.log('chatText >> ', this.chatText)
+    socket.emit('alert', this.chatText)
+  }
+  onChange = (e) => {
+    console.log(e.target.value)
+    this.chatText = e.target.value
   }
 
   render() {
-    const { username } = this.state
     return (
-      <div className="App">
-        <header className="App-header">
-          {username ? ` ${username}` : 'Hello World'}
-        </header>
-        <input type="text" />
+      <div>
+        <button onClick={this.onclick}>알림창 보내기</button>
+        <div>
+          <input
+            className="chatting-text"
+            type="text"
+            onChange={this.onChange}
+          />
+        </div>
       </div>
     )
   }
 }
-
-export default App
-
-// 1 .
-// import logo from './logo.svg';
-// import './App.css';
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;
