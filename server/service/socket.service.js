@@ -6,9 +6,12 @@ module.exports = (socket) => {
     socket.join(userid)
   })
 
-  socket.on('alert', (data) => {
-    console.log(data)
-    socket.emit('show', data)
+  // socket.on('alert', (data) => {
+  //   socket.emit('eco-test', data)
+  // })
+
+  socket.on('chat', (data) => {
+    socket.emit('answer', '챗봇 응답')
   })
 
   //   socket.on('alert', (touserid) => {

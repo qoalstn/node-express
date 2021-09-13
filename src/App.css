@@ -1,14 +1,35 @@
 .chatting-text {
   display: block;
   margin: auto;
-  width: 50%;
+  width: 30%;
 }
 
-button {
-  display: block;
-  margin: auto;
-  background-color: rgb(161, 192, 175);
-  border-radius: 4rem;
+.input-container {
+  display: flex;
+  justify-content: center;
+  margin: 50px 0px;
+}
+
+.input-text {
+  width: 40%;
+}
+
+.input-btn {
+  padding-right: 0px;
+}
+
+.chat-container {
+  display: flexbox;
+}
+
+.left-chat {
+  padding-left: 27%;
+}
+
+.right-chat {
+  padding-right: 27%;
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* .App {
