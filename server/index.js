@@ -20,8 +20,10 @@ mongoose.connect(
 )
 
 const authRoute = require('./routes/auth')
+const socketRoute = require('./routes/socket')
 
 app.use('/api/user', authRoute)
+app.use('/api', socketRoute)
 
 app.get('/', (req, res) => {
   res.json({ title: 'hello!' })
@@ -32,7 +34,7 @@ const port = 3333
 var http = require('http').createServer(app)
 const io = require('socket.io')(http)
 
-const socketHandler = require('./service/socket.service')
+const { socketHandler } = require('./service/socket.service')
 
 io.on('connection', socketHandler)
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import io from 'socket.io-client'
 import './App.css'
+import axios from 'axios'
 
 export default function Message(props) {
   const socket = io.connect('http://localhost:3333/', {
@@ -8,11 +9,15 @@ export default function Message(props) {
   })
   const [chat, setChat] = useState('Chat Start!!')
   const [answer, setAnswer] = useState('asdf')
-  const [userId, setUserId] = 'been'
+  const [userId, setUserId] = useState('been')
 
   useEffect(() => {
-    socket.emit('roomjoin', userId)
-  })
+    axios.get('http://localhost:3333/api/socket').then((res) => {
+      console.log(res.data)
+      setUserId(res.data.userId)
+      socket.emit('userJoin', userId)
+    })
+  }, [])
 
   socket.on('answer', (data) => {
     console.log('answer - ', data)

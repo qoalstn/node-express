@@ -2,25 +2,9 @@ const User = require('../model/User.js')
 const bcrypt = require('bcryptjs')
 const logger = require('../util/log')
 const jwt = require('jsonwebtoken')
-const { MongoClient } = require('mongodb')
+const { conn } = require('../util/db_config')
 
 require('dotenv').config()
-
-async function run() {
-  try {
-    const client = new MongoClient(process.env.MONGO_URL, {
-      useUnifiedTopology: true,
-    })
-    await client.connect()
-
-    const database = client.db('myFirstDatabase')
-    const users = database.collection('users')
-
-    return users
-  } catch (error) {
-    throw new Error(error)
-  }
-}
 
 async function createToken(inputMail) {
   const accessToken = jwt.sign(
@@ -48,7 +32,7 @@ exports.sendToken = async (req, res) => {
     const today = new Date()
     const tomorrow = new Date(today.setDate(today.getDate() + 1))
 
-    const users = await run()
+    const users = await conn()
     //todo : update, fail > transaction // test : api/user/register
     try {
       await users.updateOne(
@@ -142,7 +126,7 @@ exports.getContens = async (req, res) => {
 
 exports.writeContent = async (req, res) => {
   const inputContent = req.body.content
-  const users = await run()
+  const users = await conn()
 
   //todo : exception handling - if exceed content length
   if (!inputContent) return res.status(400).send('no content')
