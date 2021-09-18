@@ -1,4 +1,4 @@
-const { conn } = require('../util/db_config')
+const { conn } = require('../util/db_config');
 
 exports.init = async (req, res) => {
   const user = await conn()
@@ -14,6 +14,7 @@ exports.init = async (req, res) => {
     })
   } catch (e) {
     throw new Error(e)
+
   }
 }
 
@@ -27,11 +28,22 @@ exports.socketHandler = (socket) => {
     socket.join(userid)
   })
 
-  socket.on('chat', (data) => {
+  socket.on('chat', async (data) => {
     socket.emit('answer', '챗봇 응답')
+    console.log(data)
+    await saveChatting(data)
   })
+}
 
-  //   socket.on('alert', (touserid) => {
-  //     io.to(touserid).emit('heejewake', touserid)
-  //   })
+
+async function saveChatting (data){
+const user = await conn()
+if(!data){
+throw new Error()
+}
+try{
+const result = await user.insert({email : data})
+}catch (e){
+  throw new Error(e)
+}
 }
