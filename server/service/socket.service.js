@@ -41,12 +41,21 @@ exports.socketHandler = (socket) => {
     socket.join(userid);
   });
 
-  socket.on('chat', (data) => {
-    console.log(data);
+  socket.on('chat', async (data) => {
     socket.emit('answer', '1단계');
+    console.log(data);
+    await saveChatting(data);
   });
-
-  //   socket.on('alert', (touserid) => {
-  //     io.to(touserid).emit('heejewake', touserid)
-  //   })
 };
+
+async function saveChatting(data) {
+  const user = await conn();
+  if (!data) {
+    throw new Error();
+  }
+  try {
+    const result = await user.insert({ email: data });
+  } catch (e) {
+    throw new Error(e);
+  }
+}
