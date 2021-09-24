@@ -1,35 +1,52 @@
-import React, { useState, useEffect } from 'react'
-import io from 'socket.io-client'
-import './App.css'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+import './App.css';
+import axios from 'axios';
 
 export default function Message(props) {
-  const socket = io.connect('http://localhost:3333/', {
-    transports: ['websocket'],
-  })
-  const [chat, setChat] = useState('Chat Start!!')
-  const [answer, setAnswer] = useState('asdf')
-  const [userId, setUserId] = useState('been')
+  // const socket = io.connect('http://localhost:3333/', {
+  //   transports: ['websocket'],
+  // });
+  const [chat, setChat] = useState('Chat Start!!');
+  const [answer, setAnswer] = useState('asdf');
+  const [userId, setUserId] = useState('been');
+  const [socket, setSocket] = useState(
+    io.connect('http://localhost:3333/', {
+      transports: ['websocket'],
+    })
+  );
 
   useEffect(() => {
     axios.get('http://localhost:3333/api/socket').then((res) => {
-      console.log(res.data)
-      setUserId(res.data.userId)
-      socket.emit('userJoin', userId)
-    })
-  }, [])
+      console.log(res.data);
+      setUserId(String(res.data.userId));
+      axios
+        .post('http://localhost:3333/api/socket', {
+          socket_id: socket.id,
+          user_id: res.data.userId,
+        })
+        .then((data) => {
+          console.log(socket);
+        })
+        .catch((e) => {
+          new Error(e);
+        });
+      // socket.emit('userJoin', userId);
+    });
+  }, []);
 
   socket.on('answer', (data) => {
-    console.log('answer - ', data)
-    setAnswer(data)
-  })
+    console.log('asdf');
+    console.log('answer - ', data);
+    setAnswer(data);
+  });
 
   function onChange(e) {
-    setChat(e.target.value)
+    setChat(e.target.value);
   }
 
   function sendData(e) {
-    socket.emit('chat', chat)
+    socket.emit('chat', chat);
   }
 
   return (
@@ -45,7 +62,7 @@ export default function Message(props) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // import React from 'react'
