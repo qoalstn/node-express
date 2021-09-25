@@ -1,52 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import './App.css';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react'
+import io from 'socket.io-client'
+import './App.css'
+import axios from 'axios'
 
 export default function Message(props) {
   // const socket = io.connect('http://localhost:3333/', {
   //   transports: ['websocket'],
   // });
-  const [chat, setChat] = useState('Chat Start!!');
-  const [answer, setAnswer] = useState('asdf');
-  const [userId, setUserId] = useState('been');
   const [socket, setSocket] = useState(
     io.connect('http://localhost:3333/', {
       transports: ['websocket'],
     })
-  );
+  )
+  const [chat, setChat] = useState('Chat Start!!')
+  const [answer, setAnswer] = useState('asdf')
+  const [userId, setUserId] = useState('611a0ce75d32c32970bd58b2')
 
   useEffect(() => {
-    axios.get('http://localhost:3333/api/socket').then((res) => {
-      console.log(res.data);
-      setUserId(String(res.data.userId));
+    axios.get(`http://localhost:3333/api/socket${userId}`).then((res) => {
+      console.log('response data : ', res.data)
+      // setUserId(String(res.data.userId));
       axios
         .post('http://localhost:3333/api/socket', {
           socket_id: socket.id,
-          user_id: res.data.userId,
+          user_id: res.data.user_id,
         })
         .then((data) => {
-          console.log(socket);
+          console.log(socket)
         })
         .catch((e) => {
-          new Error(e);
-        });
+          new Error(e)
+        })
       // socket.emit('userJoin', userId);
-    });
-  }, []);
+    })
+  }, [])
 
   socket.on('answer', (data) => {
-    console.log('asdf');
-    console.log('answer - ', data);
-    setAnswer(data);
-  });
+    console.log('asdf')
+    console.log('answer - ', data)
+    setAnswer(data)
+  })
 
   function onChange(e) {
-    setChat(e.target.value);
+    setChat(e.target.value)
   }
 
   function sendData(e) {
-    socket.emit('chat', chat);
+    socket.emit('chat', chat)
   }
 
   return (
@@ -62,7 +62,7 @@ export default function Message(props) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // import React from 'react'
