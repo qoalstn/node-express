@@ -18,6 +18,9 @@ export default function Message(props) {
   useEffect(() => {
     chatAxios.init(socket, userId);
     socketHandler.answer(socket, setAnswer);
+    return () => {
+      socket.close();
+    };
   }, []);
 
   function onChange(e) {

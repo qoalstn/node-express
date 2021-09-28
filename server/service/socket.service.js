@@ -55,37 +55,29 @@ exports.saveSocketInfo = async (req, res) => {
     console.log(e);
   }
 };
-
-exports.socketHandler = (socket) => {
-  console.log(`'Connected Socket ID : ' ${socket.id}`);
-
-  socket.on('userJoin', (userid) => {
-    console.log(userid);
-    socket.join(userid);
-  });
-
-  socket.on('chat', async (data) => {
-    socket.emit('chat', '1단계');
-    await saveChatting(data);
-  });
-
-  socket.on('disconnect', async () => {
-    console.log('socket disconnect!');
-    await deleteChatId(socket.id, req.body.user_id);
-  });
+exports.saveChatting = async (data) => {
+  const user = await conn();
+  // if (!data) {
+  //   throw new Error();
+  // }
+  // try {
+  //   const result = await user.updateOne(
+  //     { _id: userId },
+  //     { $set: { socket_id: 'deleted' } }
+  //   );
+  // } catch (e) {
+  //   throw new Error(e);
+  // }
 };
 
-async function saveChatting(data) {
-  const user = await conn();
-  if (!data) {
-    throw new Error();
-  }
-  try {
-    const result = await user.insertOne({ email: data });
-  } catch (e) {
-    throw new Error(e);
-  }
-}
-
 //todo : delete chat ('disconnect')
-async function deleteChatId(socketId, userId) {}
+exports.deleteChatId = async (socketId, userId) => {
+  const user = await conn();
+
+  try {
+    console.log('delete chat id 통과 : ', socketId);
+    await user.updateOne({ _id: userId }, { $set: { socket_id: 'deleted' } });
+  } catch (e) {
+    console.log(e);
+  }
+};

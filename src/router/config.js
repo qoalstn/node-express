@@ -12,7 +12,7 @@ chatAxios.init = (socket, userId) =>
         user_id: res.data.userId,
       })
       .then((data) => {
-        console.log(socket);
+        console.log('post data : ', data);
       })
       .catch((e) => {
         new Error(e);
