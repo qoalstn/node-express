@@ -22,11 +22,11 @@
   display: flexbox;
 }
 
-.left-chat {
+.leftChat {
   padding-left: 27%;
 }
 
-.right-chat {
+.rightChat {
   padding-right: 27%;
   display: flex;
   justify-content: flex-end;

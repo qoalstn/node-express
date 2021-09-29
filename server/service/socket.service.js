@@ -27,7 +27,7 @@ exports.init = async (req, res) => {
   const user = await conn();
   try {
     const createdId = await user.insertOne({});
-    console.log('success : ', createdId);
+    // console.log('success : ', createdId);
     if (!createdId) {
       throw new Error('Fail create user');
     }
@@ -47,10 +47,7 @@ exports.saveSocketInfo = async (req, res) => {
 
   try {
     console.log('통과', req.body.socket_id, '+', _id);
-    await user.updateOne(
-      { _id: _id },
-      { $set: { socket_id: req.body.socket_id } }
-    );
+    await user.updateOne({ _id: _id }, { $set: { socket_id: req.body.socket_id } });
   } catch (e) {
     console.log(e);
   }

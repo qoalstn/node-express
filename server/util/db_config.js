@@ -1,20 +1,19 @@
-const { MongoClient } = require('mongodb')
+const { MongoClient } = require('mongodb');
 
-require('dotenv').config()
+require('dotenv').config();
 
 exports.conn = async () => {
   try {
     const client = new MongoClient(process.env.MONGO_URL, {
       useUnifiedTopology: true,
-    })
-    await client.connect()
+    });
+    await client.connect();
 
-    const database = client.db('myFirstDatabase')
-    const users = database.collection('users')
+    const database = client.db('myFirstDatabase');
+    const users = database.collection('users');
 
-    return users
+    return users;
   } catch (error) {
-    throw new Error(error)
+    throw new Error(error);
   }
-}
-
+};

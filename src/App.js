@@ -3,31 +3,38 @@ import io from 'socket.io-client';
 import './App.css';
 import chatAxios from './router/config';
 import socketHandler from './router/socket';
+import ChatList from './components/chatList';
 
-export default function Message(props) {
+function App(props) {
   const [socket, setSocket] = useState(
     io.connect('http://localhost:3333/', {
       transports: ['websocket'],
     })
   );
-  const [chat, setChat] = useState('Chat Start!!');
+  const [chat, setChat] = useState({ send: 'Chat Start!!', answer: '', step: '' });
   const [answer, setAnswer] = useState('asdf');
   // const [userId, setUserId] = useState('611a0ce75d32c32970bd58b2');
   const [userId, setUserId] = useState('');
 
-  useEffect(() => {
-    chatAxios.init(socket, userId);
-    socketHandler.answer(socket, setAnswer);
-    return () => {
-      socket.close();
-    };
-  }, []);
+  chatAxios.init(socket, userId);
+  socketHandler.answer(socket, setAnswer);
+
+  // useEffect(() => {
+  //   // setTimeout(() => {
+  //   //   chatAxios.init(socket, userId);
+  //   //   socketHandler.answer(socket, setAnswer);
+  //   // }, 2000);
+  //   return () => {
+  //     socket.close();
+  //   };
+  // }, []);
 
   function onChange(e) {
-    setChat(e.target.value);
+    setChat({ send: e.target.value, step: '2단계' });
   }
 
   function sendData(e) {
+    console.log('chat', chat);
     socketHandler.recvMessage(socket, chat);
   }
 
@@ -38,11 +45,15 @@ export default function Message(props) {
         <button onClick={sendData}> SEND DATA </button>
       </div>
       <div className="chat-container">
-        <div className="left-chat">{chat}</div>
-        <div className="right-chat">
-          <div>{answer}</div>
-        </div>
+        <ChatList
+          leftChat="leftChat"
+          rightChat="rightChat"
+          chat={chat.send}
+          answer={answer}
+        ></ChatList>
       </div>
     </div>
   );
 }
+
+export default React.memo(App);

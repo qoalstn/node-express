@@ -11,7 +11,8 @@ exports.socketHandler = (socket) => {
   });
 
   socket.on('chat', async (data) => {
-    socket.emit('chat', '1단계');
+    // socket.emit('chat', '1단계');
+    ramifyMessageType(data);
     await saveChatting(socket.id, data);
   });
 
@@ -19,4 +20,18 @@ exports.socketHandler = (socket) => {
     console.log('socket disconnect!');
     await deleteChatId(socket.id, 'req.body.user_id');
   });
+
+  function sendMessage(data) {
+    socket.emit('chat', data);
+  }
+
+  function ramifyMessageType(data) {
+    switch (data.step) {
+      case '1단계':
+        sendMessage('1단계 응답');
+      case '2단계': {
+        sendMessage('2단계 응답');
+      }
+    }
+  }
 };
