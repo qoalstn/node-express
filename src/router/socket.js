@@ -16,6 +16,7 @@ socketHandler.answer = (socket, setAnswer) => {
 };
 
 socketHandler.recvMessage = (socket, data) => {
+  const commitTest = '';
   socket.emit('chat', data);
 };
 
