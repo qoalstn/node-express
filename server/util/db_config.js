@@ -3,10 +3,10 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 exports.conn = async () => {
-  const client = new MongoClient(process.env.MONGO_URL, {
-    useUnifiedTopology: true,
-  });
   try {
+    const client = new MongoClient(process.env.MONGO_URL, {
+      useUnifiedTopology: true,
+    });
     await client.connect();
 
     const database = client.db('myFirstDatabase');
