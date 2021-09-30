@@ -11,8 +11,8 @@ exports.socketHandler = (socket) => {
   });
 
   socket.on('chat', async (data) => {
-    // socket.emit('chat', '1단계');
-    ramifyMessageType(data);
+    // socket.emit('data', 'data');
+    divideMessageType(data);
     await saveChatting(socket.id, data);
   });
 
@@ -25,12 +25,17 @@ exports.socketHandler = (socket) => {
     socket.emit('chat', data);
   }
 
-  function ramifyMessageType(data) {
+  function divideMessageType(data) {
     switch (data.step) {
-      case '1단계':
+      case 1:
         sendMessage('1단계 응답');
-      case '2단계': {
-        sendMessage('2단계 응답');
+      case 2: {
+        sendMessage({
+          send: data.send,
+          step: 3,
+          answer: '2단계 응답',
+          // answer: [{ right: '2단계 응답' }, { left: { type1: 'option1', type2: 'option2' } }],
+        });
       }
     }
   }

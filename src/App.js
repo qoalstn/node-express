@@ -11,30 +11,38 @@ function App(props) {
       transports: ['websocket'],
     })
   );
-  const [chat, setChat] = useState({ send: 'Chat Start!!', answer: '', step: '' });
-  const [answer, setAnswer] = useState('asdf');
+  const [chat, setChat] = useState({
+    send: 'Chat Start!!',
+    answer: '',
+    step: 0,
+  });
+  const [chatList, setChatList] = useState([]);
+
+  // const [recvData, setrecvData] = useState({});
+  const [answer, setAnswer] = useState('');
   // const [userId, setUserId] = useState('611a0ce75d32c32970bd58b2');
   const [userId, setUserId] = useState('');
 
   chatAxios.init(socket, userId);
-  socketHandler.answer(socket, setAnswer);
+  socketHandler.answer(socket, setChat);
 
   // useEffect(() => {
-  //   // setTimeout(() => {
-  //   //   chatAxios.init(socket, userId);
-  //   //   socketHandler.answer(socket, setAnswer);
-  //   // }, 2000);
+  // setTimeout(() => {
+  // chatAxios.init(socket, userId);
+  // socketHandler.answer(socket, setAnswer);
+  // }, 2000);
   //   return () => {
   //     socket.close();
   //   };
   // }, []);
 
   function onChange(e) {
-    setChat({ send: e.target.value, step: '2단계' });
+    setChat({ send: e.target.value });
   }
 
   function sendData(e) {
-    console.log('chat', chat);
+    const sendStep = 1;
+    setChat({ step: sendStep });
     socketHandler.recvMessage(socket, chat);
   }
 
@@ -49,7 +57,7 @@ function App(props) {
           leftChat="leftChat"
           rightChat="rightChat"
           chat={chat.send}
-          answer={answer}
+          answer={chat.answer}
         ></ChatList>
       </div>
     </div>

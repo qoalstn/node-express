@@ -8,10 +8,10 @@ socketHandler.setSocketUser = (socket, user_id) => {
   this.user_id = user_id;
 };
 
-socketHandler.answer = (socket, setAnswer) => {
+socketHandler.answer = (socket, setChat) => {
   socket.on('chat', (data) => {
-    console.log('chat : ', data);
-    setAnswer(data);
+    console.log('recvchat : ', data);
+    setChat(data);
   });
 };
 
