@@ -11,49 +11,51 @@ function App(props) {
       transports: ['websocket'],
     })
   );
-  const [chat, setChat] = useState({ send: 'Chat Start!!', answer: '', step: '' });
   const [answer, setAnswer] = useState('asdf');
+  const [chat, setChat] = useState([{ send: 'Chat Start!!', answerMsg: answer }]);
   // const [userId, setUserId] = useState('611a0ce75d32c32970bd58b2');
   const [userId, setUserId] = useState('');
+  const [input, setInput] = useState('');
 
   chatAxios.init(socket, userId);
   socketHandler.answer(socket, setAnswer);
 
-  // useEffect(() => {
-  //   // setTimeout(() => {
-  //   //   chatAxios.init(socket, userId);
-  //   //   socketHandler.answer(socket, setAnswer);
-  //   // }, 2000);
-  //   return () => {
-  //     socket.close();
-  //   };
-  // }, []);
-
   function onChange(e) {
-    setChat({ send: e.target.value, step: '2단계' });
+    setInput(e.target.value);
   }
 
   function sendData(e) {
-    console.log('chat', chat);
+    // console.log('chat', chat);
+    if (!input) return alert('내용을 입력 해주세요');
+
+    setChat([...chat, { send: input, answerMsg: answer }]);
+    setInput('');
     socketHandler.recvMessage(socket, chat);
   }
 
   return (
     <div>
       <div className="input-container">
-        <input className="input-text" type="text" onChange={onChange} />
+        <input className="input-text" type="text" onChange={onChange} name="input" value={input} />
         <button onClick={sendData}> SEND DATA </button>
       </div>
       <div className="chat-container">
-        <ChatList
-          leftChat="leftChat"
-          rightChat="rightChat"
-          chat={chat.send}
-          answer={answer}
-        ></ChatList>
+        {chat.map((i, index) => {
+          console.log('map', i);
+          return (
+            <ChatList
+              key={index}
+              leftChat="leftChat"
+              rightChat="rightChat"
+              chat={i.send || '--'}
+              answer={index}
+            ></ChatList>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-export default React.memo(App);
+// export default React.memo(App);
+export default App;
