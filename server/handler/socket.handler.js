@@ -1,4 +1,5 @@
 const { saveChatting, deleteChatId } = require('../service/socket.service');
+const getCrawler = require('../service/web_crawling');
 
 exports.socketHandler = (socket) => {
   console.log(`'Connected Socket ID : ' ${socket.id}`);
@@ -11,9 +12,12 @@ exports.socketHandler = (socket) => {
   });
 
   socket.on('chat', async (data) => {
-    // socket.emit('chat', '1단계');
-    ramifyMessageType(data);
-    await saveChatting(socket.id, data);
+    await divideMessageType(data);
+    try {
+      await saveChatting(socket.id, data);
+    } catch (e) {
+      console.log(e);
+    }
   });
 
   socket.on('disconnect', async () => {
@@ -25,13 +29,19 @@ exports.socketHandler = (socket) => {
     socket.emit('chat', data);
   }
 
-  function ramifyMessageType(data) {
+  async function divideMessageType(data) {
     switch (data.step) {
-      case '1단계':
+      case 1:
         sendMessage('1단계 응답');
-      case '2단계': {
-        sendMessage('2단계 응답');
-      }
+        break;
+      case 2:
+        const recvData = await getCrawler.getData(data.input);
+        // console.log('recvData : ', recvData);
+        sendMessage(recvData);
+        break;
+      case 3:
+        sendMessage('3단계 응답');
+        break;
     }
   }
 };

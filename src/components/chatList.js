@@ -6,7 +6,10 @@ function ChatList(props) {
     <div>
       <div className={leftChat}>{chat}</div>
       <div className={rightChat}>
-        <div>{answer}</div>
+        {answer.map((i, index) => {
+          return <div>{i.title}</div>;
+        })}
+        {/* <div>{answer}</div> */}
       </div>
     </div>
   );

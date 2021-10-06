@@ -11,14 +11,19 @@ function App(props) {
       transports: ['websocket'],
     })
   );
-  const [answer, setAnswer] = useState('asdf');
-  const [chat, setChat] = useState([{ send: 'Chat Start!!', answerMsg: answer }]);
+
+  const [sendMsg, setSendMsg] = useState('');
+  const [answer, setAnswer] = useState(['']);
+  const [input, setInput] = useState('');
+  const [chat, setChat] = useState([{ send: sendMsg, answerMsg: answer }]);
   // const [userId, setUserId] = useState('611a0ce75d32c32970bd58b2');
   const [userId, setUserId] = useState('');
-  const [input, setInput] = useState('');
 
   chatAxios.init(socket, userId);
-  socketHandler.answer(socket, setAnswer);
+  useEffect(() => {
+    // socketHandler.answer(socket, setAnswer);
+    return setChat([...chat, { send: sendMsg, answerMsg: answer }]);
+  }, [answer]);
 
   function onChange(e) {
     setInput(e.target.value);
@@ -28,27 +33,37 @@ function App(props) {
     // console.log('chat', chat);
     if (!input) return alert('내용을 입력 해주세요');
 
-    setChat([...chat, { send: input, answerMsg: answer }]);
+    setSendMsg(input);
+    socketHandler.answer(socket, setAnswer);
+    // setChat([...chat, { send: input, answerMsg: answer }]);
+    const sendData = { input: input, step: chat.length };
+    socketHandler.recvMessage(socket, sendData);
     setInput('');
-    socketHandler.recvMessage(socket, chat);
   }
 
   return (
     <div>
       <div className="input-container">
-        <input className="input-text" type="text" onChange={onChange} name="input" value={input} />
+        <input
+          placeholder="내용을 입력 해주세요"
+          className="input-text"
+          type="text"
+          onChange={onChange}
+          name="input"
+          value={input}
+        />
         <button onClick={sendData}> SEND DATA </button>
       </div>
       <div className="chat-container">
         {chat.map((i, index) => {
-          console.log('map', i);
+          // console.log('map', i);
           return (
             <ChatList
               key={index}
               leftChat="leftChat"
               rightChat="rightChat"
-              chat={i.send || '--'}
-              answer={index}
+              chat={i.send}
+              answer={i.answerMsg}
             ></ChatList>
           );
         })}
