@@ -2,7 +2,16 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 async function getHTML(category) {
-  const cate = category == '호텔' ? 'hotel' : '';
+  let cate = '';
+  switch (category) {
+    case '호텔':
+      cate = 'hotel';
+      break;
+    case '펜션':
+      cate = 'pension';
+      break;
+  }
+
   try {
     return await axios.get(`https://www.yanolja.com/${cate}`);
   } catch (error) {
@@ -25,7 +34,6 @@ getCrawler.getData = async (inputCategory) => {
     });
     return titleList;
   });
-  // console.log(resultList);
   return resultList;
 };
 

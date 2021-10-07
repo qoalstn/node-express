@@ -30,12 +30,11 @@ function App(props) {
   }
 
   function sendData(e) {
-    // console.log('chat', chat);
+    setChat(['']);
     if (!input) return alert('내용을 입력 해주세요');
 
     setSendMsg(input);
     socketHandler.answer(socket, setAnswer);
-    // setChat([...chat, { send: input, answerMsg: answer }]);
     const sendData = { input: input, step: chat.length };
     socketHandler.recvMessage(socket, sendData);
     setInput('');
@@ -45,7 +44,7 @@ function App(props) {
     <div>
       <div className="input-container">
         <input
-          placeholder="내용을 입력 해주세요"
+          placeholder="'호텔' 또는 '펜션'"
           className="input-text"
           type="text"
           onChange={onChange}
@@ -56,21 +55,11 @@ function App(props) {
       </div>
       <div className="chat-container">
         {chat.map((i, index) => {
-          // console.log('map', i);
-          return (
-            <ChatList
-              key={index}
-              leftChat="leftChat"
-              rightChat="rightChat"
-              chat={i.send}
-              answer={i.answerMsg}
-            ></ChatList>
-          );
+          return <ChatList key={index} chat={i.send} answer={i.answerMsg}></ChatList>;
         })}
       </div>
     </div>
   );
 }
 
-// export default React.memo(App);
 export default App;
