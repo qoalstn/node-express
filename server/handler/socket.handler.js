@@ -12,6 +12,7 @@ exports.socketHandler = (socket) => {
   });
 
   socket.on('chat', async (data) => {
+    console.log('socket_on data-----', data, socket.id);
     await divideMessageType(data);
     try {
       await saveChatting(socket.id, data);
