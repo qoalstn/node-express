@@ -32,9 +32,32 @@ getCrawler.getData = async (inputCategory) => {
         title: $(this).text(),
       };
     });
+    orderByResult(titleList);
     return titleList;
   });
   return resultList;
 };
+
+function orderByResult(titleList, option = '리뷰순') {
+  if (option == '리뷰순') {
+    titleList.sort((a, b) => {
+      const startIndexA = a.title.indexOf('(') + 1;
+      const endIndexA = a.title.indexOf(')');
+      const A = a.title.substring(startIndexA, endIndexA).replace(',', '');
+
+      const startIndexB = b.title.indexOf('(') + 1;
+      const endIndexB = b.title.indexOf(')');
+      const B = b.title.substring(startIndexB, endIndexB).replace(',', '');
+
+      // const reg = /\((\d*\,\d*|\d)\)/g;
+      // const A = a.title.match(reg);
+      // const B = b.title.match(reg);
+
+      // return A < B ? -1 : A > B ? 1 : 0;
+
+      return B - A;
+    });
+  }
+}
 
 module.exports = getCrawler;
