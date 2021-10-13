@@ -12,8 +12,7 @@ exports.socketHandler = (socket) => {
   });
 
   socket.on('chat', async (data) => {
-    console.log('socket_on data-----', data, socket.id);
-    await divideMessageType(data);
+    await divideMessageType(data, data.option || '평점순');
     try {
       await saveChatting(socket.id, data);
     } catch (e) {
@@ -30,14 +29,13 @@ exports.socketHandler = (socket) => {
     socket.emit('chat', data);
   }
 
-  async function divideMessageType(data) {
+  async function divideMessageType(data, option) {
     switch (data.step) {
       case 1:
         sendMessage('1단계 응답');
         break;
       case 2:
-        const recvData = await getCrawler.getData(data.input);
-        // console.log('recvData : ', recvData);
+        const recvData = await getCrawler.getData(data.input, option);
         sendMessage(recvData);
         break;
       case 3:

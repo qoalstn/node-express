@@ -2,18 +2,18 @@ import React from 'react';
 import socketHandler from '../router/socket';
 
 function ChatList(props) {
-  const { chat, answer, socket } = props;
+  const { send, answer, socket } = props;
 
   onclick = (e) => {
-    const selectBtnName = e.target.value;
+    const selectBtnName = { input: send, step: 2, option: e.target.value };
     socketHandler.recvMessage(socket, selectBtnName);
   };
 
   return (
     <div className="chat-container">
       <div className="leftChat">
-        {chat}
-        {chat ? (
+        {send}
+        {send ? (
           <div className="leftChatBtn-container">
             <input
               className="leftChat-button"
@@ -51,7 +51,6 @@ function ChatList(props) {
               return <div>{i.title}</div>;
             })
           : ''}
-        {/* <div>{answer}</div> */}
       </div>
     </div>
   );

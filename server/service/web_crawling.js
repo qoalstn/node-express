@@ -21,7 +21,7 @@ async function getHTML(category) {
 
 const getCrawler = {};
 
-getCrawler.getData = async (inputCategory) => {
+getCrawler.getData = async (inputCategory, option) => {
   let titleList = [];
   const resultList = await getHTML(inputCategory).then((html) => {
     const $ = cheerio.load(html.data);
@@ -32,28 +32,41 @@ getCrawler.getData = async (inputCategory) => {
         title: $(this).text(),
       };
     });
-    orderByResult(titleList);
+    orderByResult(titleList, option);
     return titleList;
   });
   return resultList;
 };
 
-function orderByResult(titleList, option = '리뷰순') {
+function orderByResult(titleList, option) {
   if (option == '리뷰순') {
     titleList.sort((a, b) => {
-      const startIndexA = a.title.indexOf('(') + 1;
-      const endIndexA = a.title.indexOf(')');
-      const A = a.title.substring(startIndexA, endIndexA).replace(',', '');
+      // const startIndexA = a.title.indexOf('(') + 1;
+      // const endIndexA = a.title.indexOf(')');
+      // const A = a.title.substring(startIndexA, endIndexA).replace(',', '');
 
-      const startIndexB = b.title.indexOf('(') + 1;
-      const endIndexB = b.title.indexOf(')');
-      const B = b.title.substring(startIndexB, endIndexB).replace(',', '');
+      // const startIndexB = b.title.indexOf('(') + 1;
+      // const endIndexB = b.title.indexOf(')');
+      // const B = b.title.substring(startIndexB, endIndexB).replace(',', '');
 
-      // const reg = /\((\d*\,\d*|\d)\)/g;
-      // const A = a.title.match(reg);
-      // const B = b.title.match(reg);
+      const reg = /\((\d*\,\d*|\d{3})\)/g;
+      const tmpA = a.title.match(reg);
+      const tmpB = b.title.match(reg);
 
-      // return A < B ? -1 : A > B ? 1 : 0;
+      const A = tmpA[0].replace('(', '').replace(')', '').replace(',', '');
+      const B = tmpB[0].replace('(', '').replace(')', '').replace(',', '');
+
+      return B - A;
+    });
+  }
+  if (option == '평점순') {
+    titleList.sort((a, b) => {
+      const reg = /\d\.\d\(/g;
+      const tmpA = a.title.match(reg);
+      const tmpB = b.title.match(reg);
+
+      const A = tmpA[0].replace('(', '').replace('.', '');
+      const B = tmpB[0].replace('(', '').replace('.', '');
 
       return B - A;
     });

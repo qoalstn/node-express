@@ -56,7 +56,7 @@ function App(props) {
       <div className="chat-container">
         {chat.map((i, index) => {
           return (
-            <ChatList key={index} socket={socket} chat={i.send} answer={i.answerMsg}></ChatList>
+            <ChatList key={index} socket={socket} send={i.send} answer={i.answerMsg}></ChatList>
           );
         })}
       </div>
