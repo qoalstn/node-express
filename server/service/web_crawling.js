@@ -49,7 +49,7 @@ function orderByResult(titleList, option) {
       // const endIndexB = b.title.indexOf(')');
       // const B = b.title.substring(startIndexB, endIndexB).replace(',', '');
 
-      const reg = /\((\d*\,\d*|\d{3})\)/g;
+      const reg = /\((\d*\,\d*|\d{1,3})\)/g;
       const tmpA = a.title.match(reg);
       const tmpB = b.title.match(reg);
 
@@ -69,6 +69,33 @@ function orderByResult(titleList, option) {
       const B = tmpB[0].replace('(', '').replace('.', '');
 
       return B - A;
+    });
+  }
+  if (option == '할인율') {
+    titleList.sort((a, b) => {
+      const reg = /(\d{2})\%/g;
+      const tmpA = a.title.match(reg);
+      const tmpB = b.title.match(reg);
+
+      const A = tmpA ? tmpA[0].replace(/\%/g, '') : '0';
+      const B = tmpB ? tmpB[0].replace(/\%/g, '') : '0';
+
+      return B - A;
+    });
+  }
+  if (option == '가격순') {
+    titleList.sort((a, b) => {
+      const cutListA = a.title.slice(-10, a.title.length);
+      const cutListB = b.title.slice(-10, b.title.length);
+
+      const reg = /(\d*\,\d{3}|\d*\,\d*\,\d{3})/g;
+      const tmpA = cutListA.match(reg);
+      const tmpB = cutListB.match(reg);
+
+      const A = tmpA[0].replace(',', '');
+      const B = tmpB[0].replace(',', '');
+
+      return A - B;
     });
   }
 }
