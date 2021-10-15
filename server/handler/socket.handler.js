@@ -35,11 +35,12 @@ exports.socketHandler = (socket) => {
         sendMessage('1단계 응답');
         break;
       case 2:
-        const recvData = await getCrawler.getData(data.input, option);
+        const recvData = await getCrawler.getData(data.input, '평점순');
         sendMessage(recvData);
         break;
       case 3:
-        sendMessage('3단계 응답');
+        const recvOptionData = await getCrawler.getData(data.input, option);
+        sendMessage(recvOptionData);
         break;
     }
   }
