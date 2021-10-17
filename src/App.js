@@ -36,6 +36,7 @@ function App(props) {
     setSendMsg(input);
     socketHandler.answer(socket, setAnswer);
     const sendData = { input: input, step: chat.length };
+    console.log(sendData);
     socketHandler.recvMessage(socket, sendData);
     setInput('');
   }

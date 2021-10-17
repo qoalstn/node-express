@@ -19,32 +19,32 @@ function ChatList(props) {
             <input
               className="leftChat-button"
               type="button"
-              value="추천해주세요"
-              onclick={onclick}
+              value="추천순"
+              onClick={onclick}
             ></input>
             <input
               className="leftChat-button"
               type="button"
               value="가격순"
-              onclick={onclick}
+              onClick={onclick}
             ></input>
             <input
               className="leftChat-button"
               type="button"
               value="리뷰순"
-              onclick={onclick}
+              onClick={onclick}
             ></input>
             <input
               className="leftChat-button"
               type="button"
               value="할인율"
-              onclick={onclick}
+              onClick={onclick}
             ></input>
             <input
               className="leftChat-button"
               type="button"
               value="평점순"
-              onclick={onclick}
+              onClick={onclick}
             ></input>
           </div>
         ) : (
